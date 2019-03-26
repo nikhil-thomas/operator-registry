@@ -1,0 +1,135 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    capabilities: Basic Install
+  name: tektoncd-operator.v0.0.1
+  namespace: tekton-pipelines
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - kind: Install
+      name: installs.tekton.dev
+      version: v1alpha1
+      displayName: TektonCD-Pipeline Install
+      description: CRD to trigger install/delete of TektonCD-Pipeline
+  description: Tektoncd Operator Cluster Service Version
+  displayName: Tektoncd Operator
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - tekton.dev
+          resources:
+          - '*'
+          - installs
+          verbs:
+          - '*'
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - clusterroles
+          verbs:
+          - get
+        - apiGroups:
+          - ""
+          resources:
+          - serviceaccounts
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - clusterrolebindings
+          verbs:
+          - get
+        - apiGroups:
+          - apiextensions.k8s.io
+          resources:
+          - customresourcedefinitions
+          verbs:
+          - get
+        serviceAccountName: tektoncd-operator
+      deployments:
+      - name: tektoncd-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: tektoncd-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: tektoncd-operator
+            spec:
+              containers:
+              - command:
+                - tektoncd-operator
+                - --manifest=/data/resources
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: tektoncd-operator
+                image: nikhilvep/tektoncd-operator:0.0.4
+                imagePullPolicy: Always
+                name: tektoncd-operator
+                resources: {}
+              serviceAccountName: tektoncd-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  maturity: alpha
+  provider: {}
+  version: 0.0.1

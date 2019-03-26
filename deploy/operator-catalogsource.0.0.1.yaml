@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+ name: tekton-pipelines
+---
+apiVersion: operators.coreos.com/v1alpha2
+kind: OperatorGroup
+metadata:
+ name: og-tekton-operator
+ namespace: tekton-pipelines
+spec:
+ targetNamespaces:
+ - tekton-pipelines
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: localoperators
+  namespace: tekton-pipelines
+spec:
+  sourceType: grpc
+  image: nikhilvep/operator-registry:0.0.14
+  displayName: localOperators
+  publisher: tekton.dev
