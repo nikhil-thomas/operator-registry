@@ -20,6 +20,6 @@ metadata:
   namespace: tekton-pipelines
 spec:
   sourceType: grpc
-  image: nikhilvep/operator-registry:0.0.14
+  image: nikhilvep/operator-registry:0.0.15
   displayName: localOperators
   publisher: tekton.dev
